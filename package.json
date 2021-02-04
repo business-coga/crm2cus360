@@ -1,0 +1,27 @@
+{
+  "name": "crm2cus360",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "dev": "nodemon --watch src ./index.js",
+    "debug": "node --nolazy --inspect-brk=9229 index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/business-coga/crm2cus360.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/business-coga/crm2cus360/issues"
+  },
+  "homepage": "https://github.com/business-coga/crm2cus360#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "node-schedule": "^2.0.0",
+    "pg": "^8.5.1"
+  }
+}
