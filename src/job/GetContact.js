@@ -35,12 +35,12 @@ async function GetAllContact(){
                 const {rows} = await conn.query(query.insertContract(response.data.items[i]))
             }
 
-            console.log({
-                countLoop,
-                count,
-                offset,
-                time : new Date() - start
-            })
+            // console.log({
+            //     countLoop,
+            //     count,
+            //     offset,
+            //     time : new Date() - start
+            // })
         }else{
             console.log({
                 status: response.status,
