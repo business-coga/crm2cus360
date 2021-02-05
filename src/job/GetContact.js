@@ -48,7 +48,7 @@ async function GetAllContact(){
             })
         }
     }
-    console.log(`${(new Date()).toLocaleString()} : countLoop=${countLoop}, offset=${offset}, runtime=${new Date() - startJob}s`)
+    console.log(`[${(new Date()).toLocaleString()}] countLoop=${countLoop}, offset=${offset}, runtime=${new Date() - startJob}s`)
 }
 
 
