@@ -1,9 +1,11 @@
-require('./../job/GetContact')
+const schedule = require('node-schedule');
+const getContactFromCRM = require('./../job/GetContact')
 
 
 
-module.exports = function(){
-    setInterval(()=>{
-        console.log('ok',new Date())
-    }, 1000)
-}
+const job = schedule.scheduleJob('0 0 3 * * *', function(fireDate){
+    getContactFromCRM()
+});
+
+
+module.exports = job

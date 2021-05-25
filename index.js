@@ -1,2 +1,2 @@
 require('dotenv').config()
-require('./src/job/GetContact')
+require('./src/schedule/index')

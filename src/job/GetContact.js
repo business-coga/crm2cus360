@@ -3,16 +3,13 @@ const conn = require('./../model')
 
 async function GetAllContact(){
     let count = 1
-    let offset = 0  // 4000
+    let offset = 0
     let countLoop = 0
-    const startJob = new Date()
-    conn.query(query.truncateTableContract())
-    .then(({rows})=>{
-    }).catch(err => console.log(err))
+    let contactsCRM = []
+    let contactsInsert = []
 
     while (count > 0 && countLoop < 100) {
         countLoop++
-        let start = new Date()
         const response = await axios({
             method: 'GET',
             url: `https://fa-eqbg-saasfaprod1.fa.ocs.oraclecloud.com/crmRestApi/resources/11.13.18.05/contacts`,
@@ -23,32 +20,38 @@ async function GetAllContact(){
             params : {
                 onlyData : true,
                 fields: 'PartyId,PersonProfileId,PartyNumber,SourceSystem,SourceSystemReferenceValue,FirstName,LastName,ContactName,OwnerPartyNumber,OwnerEmailAddress,OwnerName,DateOfBirth,Gender,PartyStatus,PartyType,MobileContactPointType,MobileCountryCode,MobileNumber,FormattedMobileNumber,RawMobileNumber,EmailContactPointType,EmailAddress,CreatedBy,CreationDate,LastUpdateDate,LastUpdatedBy',
-                limit: 200,
-                offset : offset
+                limit: 500,
+                offset : offset,
+                q : 'SourceSystem!=customer_360'
             }
         })
         if(response.status == 200){
             count = response.data.count
             offset = offset + count
+            contactsCRM = contactsCRM.concat(response.data.items)
+            console.log(countLoop)
 
-            for(let i =0; i< response.data.items.length; i++){
-                const {rows} = await conn.query(query.insertContract(response.data.items[i]))
-            }
 
-            // console.log({
-            //     countLoop,
-            //     count,
-            //     offset,
-            //     time : new Date() - start
-            // })
         }else{
-            console.log({
+            console.log(`${(new Date()).toLocaleString()} ${JSON.stringify({
                 status: response.status,
                 statusText: response.statusText
-            })
+            })}`)
         }
     }
-    console.log(`[${(new Date()).toLocaleString()}] countLoop=${countLoop}, offset=${offset}, runtime=${new Date() - startJob}s`)
+    let partyId360  = (await conn.query(query.getPartyId())).rows
+
+    for(let i=0; i < contactsCRM.length; i++){
+        if(partyId360.find(e => e.partyid == contactsCRM[i].PartyId) === undefined){
+            contactsInsert.push(contactsCRM[i])
+        }
+    }
+
+    for(let i =0; i< contactsInsert.length; i++){
+        const {rows} = await conn.query(query.insertContract(contactsInsert[i]))
+    }
+
+    console.log(`${(new Date()).toLocaleString()} Inserted : ${contactsInsert.length} contact.`)
 }
 
 
@@ -56,6 +59,10 @@ async function GetAllContact(){
 const query = {
     truncateTableContract : function(){
         return `TRUNCATE staging_crm.contact`
+    },
+    getPartyId : function(){
+        return `SELECT partyid
+        FROM staging_crm.contact`
     },
     insertContract : function (data){
         return {
@@ -119,5 +126,7 @@ const query = {
             }
     }
 }
-GetAllContact().catch(err => console.log(err))
-module.exports = function (){}
+
+module.exports = function (){
+    GetAllContact().catch(err => console.log(err))
+}
